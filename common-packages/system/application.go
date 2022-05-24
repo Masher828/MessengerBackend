@@ -11,6 +11,7 @@ import (
 
 type Controller struct {
 }
+
 type Application struct {
 }
 
@@ -21,6 +22,7 @@ func (application *Application) Route(controller interface{}, route string) inte
 		method := methodInterface.(func(c web.C, w http.ResponseWriter, r *http.Request, logger *logrus.Entry) ([]byte, error))
 		response, err := method(c, w, r, logger)
 		if err != nil {
+			// TODO ADD FILTER FOR SYSTEM GENERATED ERROR Or THROWN BY USER so not leak important info to frontend
 			if err.Error() == "EOF" {
 				err = InvalidPayloadData
 			}
