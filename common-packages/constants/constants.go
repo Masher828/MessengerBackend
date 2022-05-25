@@ -12,8 +12,18 @@ var (
 	//Collection Name
 	ConversationCollection     = "conversation"
 	UserConversationCollection = "user_conversation"
+	MessagesCollection         = "messages"
 
 	//Conversation defaults
-	DefaultConversationOffset int64 = 0
-	DefaultConversationLimit  int64 = 10
+	DefaultGetConversationOffset int64 = 0
+	DefaultGetConversationLimit  int64 = 10
+
+	//Message Status
+	MessageStatusSent      = "sent"
+	MessageStatusFailed    = "failed"
+	MessageStatusRead      = "read"
+	MessageStatusDelivered = "delivered"
+	MessageStatusDeleted   = "deleted"
+
+	MongoNoDocumentErro = "mongo: no documents in result"
 )
