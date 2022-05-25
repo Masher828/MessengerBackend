@@ -45,17 +45,17 @@ func (controller *Controller) GetConversation(c web.C, w http.ResponseWriter, r 
 
 	offsetArr := r.URL.Query()["offset"]
 
-	offset := constants.DefaultConversationOffset
+	offset := constants.DefaultGetConversationOffset
 
 	if len(offsetArr) > 0 {
 		offset, err = strconv.ParseInt(offsetArr[0], 10, 64)
 		if err != nil {
 			log.Errorln(err)
-			offset = constants.DefaultConversationOffset
+			offset = constants.DefaultGetConversationOffset
 		}
 	}
 
-	limit := constants.DefaultConversationLimit
+	limit := constants.DefaultGetConversationLimit
 
 	limitArr := r.URL.Query()["limit"]
 
@@ -63,7 +63,7 @@ func (controller *Controller) GetConversation(c web.C, w http.ResponseWriter, r 
 		limit, err = strconv.ParseInt(limitArr[0], 10, 64)
 		if err != nil {
 			log.Errorln(err)
-			limit = constants.DefaultConversationLimit
+			limit = constants.DefaultGetConversationLimit
 		}
 	}
 

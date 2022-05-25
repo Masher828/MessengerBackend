@@ -52,5 +52,5 @@ func CreateConversation(conversation *models.Conversation, users []int64, log *l
 
 func GetuserConversation(id int64, offset, limit int64, log *logrus.Entry) ([]models.ResponseUserConversation, error) {
 
-	return repository.GetuserConversation(id, offset, limit, log)
+	return repository.GetUserConversation(id, offset, limit, log)
 }

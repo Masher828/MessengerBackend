@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Masher828/MessengerBackend/common-packages/constants"
 	"github.com/Masher828/MessengerBackend/common-packages/system"
@@ -36,7 +35,7 @@ func AddUserToConversation(userConversations []interface{}, log *logrus.Entry) e
 	return err
 }
 
-func GetuserConversation(id int64, offset, limit int64, log *logrus.Entry) ([]models.ResponseUserConversation, error) {
+func GetUserConversation(userId int64, offset, limit int64, log *logrus.Entry) ([]models.ResponseUserConversation, error) {
 
 	client := system.SocialContext.MongoClient
 	db := client.Database(constants.DatabaseSocialDB).Collection(constants.UserConversationCollection)
@@ -44,7 +43,7 @@ func GetuserConversation(id int64, offset, limit int64, log *logrus.Entry) ([]mo
 	var conversations []models.ResponseUserConversation
 	pipeline := []bson.M{}
 
-	conditionToMatchUserId := bson.M{"$match": bson.M{"userId": id}}
+	conditionToMatchUserId := bson.M{"$match": bson.M{"userId": userId}}
 	pipeline = append(pipeline, conditionToMatchUserId)
 
 	conditionToGetConversationDetails := bson.M{"$lookup": bson.M{"from": constants.ConversationCollection, "localField": "conversationId", "foreignField": "_id", "as": "conversation"}}
@@ -64,8 +63,6 @@ func GetuserConversation(id int64, offset, limit int64, log *logrus.Entry) ([]mo
 	}
 
 	opts := options.Aggregate()
-
-	fmt.Println(pipeline)
 	cursor, err := db.Aggregate(context.TODO(), pipeline, opts)
 	if err != nil {
 		log.Errorln(err)
@@ -79,4 +76,30 @@ func GetuserConversation(id int64, offset, limit int64, log *logrus.Entry) ([]mo
 	}
 
 	return conversations, nil
+}
+
+func IsUserPartOfConversation(userId int64, conversationId string, log *logrus.Entry) bool {
+	client := system.SocialContext.MongoClient
+	db := client.Database(constants.DatabaseSocialDB).Collection(constants.UserConversationCollection)
+
+	where := bson.M{"conversationId": conversationId, "userId": userId}
+	result := db.FindOne(context.TODO(), where)
+
+	return result.Err() == nil
+}
+
+func UpdateConversation(conversationId string, dataToBeUpdated map[string]interface{}, log *logrus.Entry) error {
+	client := system.SocialContext.MongoClient
+	db := client.Database(constants.DatabaseSocialDB).Collection(constants.ConversationCollection)
+
+	where := bson.M{"_id": conversationId}
+
+	data := bson.M{"$set": dataToBeUpdated}
+
+	_, err := db.UpdateOne(context.TODO(), where, data)
+	if err != nil {
+		log.Errorln(err)
+	}
+
+	return err
 }
