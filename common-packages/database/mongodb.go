@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,11 +11,6 @@ import (
 )
 
 func GetMongoClient() (*mongo.Client, error) {
-	// options := options.Client()
-
-	// var timeOut = time.Second * 60
-
-	// options.ServerSelectionTimeout = &timeOut
 
 	host := viper.GetString("database.mongodb.host")
 	port := viper.GetString("database.mongodb.port")
@@ -30,23 +24,21 @@ func GetMongoClient() (*mongo.Client, error) {
 		uri += ":" + port
 	}
 
-	fmt.Println(uri)
-	// client, err := mongo.Connect(context.TODO(), options.ApplyURI(uri))
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
-	clientOptions := options.Client().
-		ApplyURI("mongodb+srv://mongoose:bn00CkVZhgqkThWQ@cluster0.o8d1k.mongodb.net").
-		SetServerAPIOptions(serverAPIOptions)
-	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
-	defer cancel()
-	client, err := mongo.Connect(ctx, clientOptions)
 
-	err = client.Ping(context.TODO(), readpref.Primary())
+	clientOptions := options.Client().
+		ApplyURI(uri).
+		SetServerAPIOptions(serverAPIOptions)
+
+	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
-		return nil, err
+		fmt.Println(err)
+	}
+
+	rp := readpref.Primary()
+	err = client.Ping(context.TODO(), rp)
+	if err != nil {
+		fmt.Println(err)
 	}
 
 	return client, err
