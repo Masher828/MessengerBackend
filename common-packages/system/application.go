@@ -81,14 +81,15 @@ func (application *Application) ApplyAuth(c *web.C, h http.Handler) http.Handler
 		} else {
 			accessToken, err := getAccessToken(r)
 			if err != nil {
-				fmt.Println(err)
+				if err != UnauthorizedErr {
+					fmt.Println(err)
+				}
 				c.Env[constants.AuthFailed] = true
 			} else {
 
 				userContext, err := GetUserContext(accessToken)
 				if err != nil {
 					fmt.Println(err)
-					fmt.Println("check")
 					c.Env[constants.AuthFailed] = true
 				} else {
 					c.Env[constants.AuthFailed] = false
