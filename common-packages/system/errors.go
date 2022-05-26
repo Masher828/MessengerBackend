@@ -19,7 +19,7 @@ var (
 	InavlidGroupType = errors.New("please select a valid group type")
 	InavlidGroupName = errors.New("please enter a valid group name")
 
-	UserNotPartOfConversation = errors.New("user is not part of conversation")
+	UserNotPartOfConversation = errors.New("conversation does not exist")
 
 	UnauthorizedErr            = errors.New("user is not authorized to perfrom the task")
 	AccessTokenDoesNotExistErr = errors.New("access token does not exist in the redis")

@@ -15,7 +15,7 @@ import (
 
 func (controller *Controller) SendMessage(c web.C, w http.ResponseWriter, r *http.Request, log *logrus.Entry) ([]byte, error) {
 
-	var message models.Message
+	var message models.MessageRequest
 
 	err := json.NewDecoder(r.Body).Decode(&message)
 	if err != nil {
@@ -23,7 +23,9 @@ func (controller *Controller) SendMessage(c web.C, w http.ResponseWriter, r *htt
 		return nil, err
 	}
 
-	err = services.SendMessage(message, log)
+	userContext := c.Env[constants.UserContext].(commonpackagesmodel.UserModelContext)
+
+	err = services.SendMessage(message, userContext.Id, log)
 	if err != nil {
 		log.Errorln(err)
 		return nil, err

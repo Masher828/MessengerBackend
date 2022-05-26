@@ -5,26 +5,31 @@ import (
 	"github.com/Masher828/MessengerBackend/common-packages/system"
 	"github.com/Masher828/MessengerBackend/messagesapp/models"
 	"github.com/Masher828/MessengerBackend/messagesapp/repository"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
-func SendMessage(message models.Message, log *logrus.Entry) error {
+func SendMessage(messageRequest models.MessageRequest, userId int64, log *logrus.Entry) error {
 
 	now := system.GetUTCTime().Unix()
 
+	message := messageRequest.GetMessage()
+
+	message.Id = uuid.New().String()
 	message.SentOn = now
 	message.Status = constants.MessageStatusSent
+	message.UserId = userId
 
-	if _, err := message.Isvalid(); err != nil {
+	if _, err := messageRequest.Isvalid(); err != nil {
 		log.Errorln(err)
 		return err
 	}
 
-	// if !repository.IsUserPartOfConversation(message.UserId, message.ConversationId, log) {
-	// 	err := system.UserNotPartOfConversation
-	// 	log.Errorln(err)
-	// 	return err
-	// }
+	if !repository.IsUserPartOfConversation(message.UserId, message.ConversationId, log) {
+		err := system.UserNotPartOfConversation
+		log.Errorln(err)
+		return err
+	}
 
 	err := repository.InsertMessage(message, log)
 	if err != nil {

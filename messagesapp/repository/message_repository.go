@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func InsertMessage(message models.Message, log *logrus.Entry) error {
+func InsertMessage(message *models.Message, log *logrus.Entry) error {
 
 	client := system.SocialContext.MongoClient
 	db := client.Database(constants.DatabaseSocialDB).Collection(constants.MessagesCollection)
@@ -32,8 +32,8 @@ func GetMessagesForConversation(conversationId string, userId, offset, limit int
 	opts := options.Find()
 
 	opts.SetSort(bson.M{"senton": -1})
-	opts.Skip = &offset
-	opts.Limit = &limit
+	opts.SetSkip(offset)
+	opts.SetLimit(limit)
 
 	where := bson.M{"conversationId": conversationId, "deletedFor": bson.M{"$nin": []int64{userId}}}
 

@@ -5,6 +5,7 @@ import (
 )
 
 type Message struct {
+	Id             string  `json:"id" bson:"_id"`
 	UserId         int64   `json:"userId" bson:"userId"`
 	ConversationId string  `json:"conversationId" bson:"conversationId"`
 	Type           string  `json:"type" bson:"type"`
@@ -15,10 +16,23 @@ type Message struct {
 	DeliveredOn    int64   `json:"deliveredOn" bson:"deliveredOn"`
 }
 
-func (message *Message) Isvalid() (bool, error) {
-	if message.UserId == 0 {
-		return false, system.InvalidPayloadData
-	}
+type MessageRequest struct {
+	ConversationId string `json:"conversationId" bson:"conversationId"`
+	Type           string `json:"type" bson:"type"`
+	Body           string `json:"body" bson:"body"`
+}
+
+func (messageRequest *MessageRequest) GetMessage() *Message {
+	var message Message
+
+	message.Body = messageRequest.Body
+	message.Type = messageRequest.Type
+	message.ConversationId = messageRequest.ConversationId
+
+	return &message
+}
+
+func (message *MessageRequest) Isvalid() (bool, error) {
 
 	if len(message.Body) == 0 {
 		return false, system.InvalidPayloadData
@@ -27,9 +41,6 @@ func (message *Message) Isvalid() (bool, error) {
 	if len(message.ConversationId) == 0 {
 		return false, system.InvalidPayloadData
 	}
-
-	// repository.GetUserConversation()
-	//validate conversationId
 
 	return true, nil
 }
