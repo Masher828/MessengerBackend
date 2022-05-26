@@ -53,6 +53,13 @@ func GetDefaultLogger(userId int64, uri string, method string) *logger.Entry {
 
 	logger.AddHook(NewExtraFieldHook("local"))
 
+	if userId == 0 {
+		return logger.WithFields(logger.Fields{
+			"method": method,
+			"uri":    uri,
+		})
+	}
+
 	return logger.WithFields(logger.Fields{
 		"method": method,
 		"uri":    uri,
@@ -73,7 +80,7 @@ func NewExtraFieldHook(env string) *ExtraFieldHook {
 }
 
 func (h *ExtraFieldHook) Levels() []logrus.Level {
-	return logrus.AllLevels
+	return []logrus.Level{logrus.ErrorLevel}
 }
 
 func (h *ExtraFieldHook) Fire(entry *logrus.Entry) error {

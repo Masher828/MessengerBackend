@@ -7,7 +7,7 @@ import (
 )
 
 func PrepareRoutes(application *system.Application) {
-	goji.Post("/auth/user/signup", application.Route(&controllers.Controller{}, "UserSignup"))
-	goji.Post("/auth/user/signin", application.Route(&controllers.Controller{}, "UserSignin"))
-	goji.Get("/auth/user/get", application.Route(&controllers.Controller{}, "GetUsers"))
+	goji.Post("/auth/user/signup", application.Route(&controllers.Controller{}, "UserSignup", true))
+	goji.Post("/auth/user/signin", application.Route(&controllers.Controller{}, "UserSignin", true))
+	goji.Get("/auth/user/get", application.Route(&controllers.Controller{}, "GetUsers", true))
 }

@@ -3,9 +3,9 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/Masher828/MessengerBackend/common-packages/constants"
+	commonpackagesmodel "github.com/Masher828/MessengerBackend/common-packages/models"
 	"github.com/Masher828/MessengerBackend/common-packages/system"
 	"github.com/Masher828/MessengerBackend/messagesapp/models"
 	"github.com/Masher828/MessengerBackend/messagesapp/services"
@@ -41,38 +41,18 @@ func (controller *Controller) CreateConversation(c web.C, w http.ResponseWriter,
 
 func (controller *Controller) GetConversation(c web.C, w http.ResponseWriter, r *http.Request, log *logrus.Entry) ([]byte, error) {
 
-	id, err := strconv.ParseInt(c.URLParams["userId"], 10, 64)
+	userContext := c.Env[constants.UserContext].((commonpackagesmodel.UserModelContext))
 
-	offsetArr := r.URL.Query()["offset"]
+	offset, limit := system.GetOffsetAndLimit(r.URL.Query()["offset"], r.URL.Query()["limit"], constants.DefaultOffset, constants.DefaultLimit, log)
 
-	offset := constants.DefaultGetConversationOffset
-
-	if len(offsetArr) > 0 {
-		offset, err = strconv.ParseInt(offsetArr[0], 10, 64)
-		if err != nil {
-			log.Errorln(err)
-			offset = constants.DefaultGetConversationOffset
-		}
-	}
-
-	limit := constants.DefaultGetConversationLimit
-
-	limitArr := r.URL.Query()["limit"]
-
-	if len(limitArr) > 0 {
-		limit, err = strconv.ParseInt(limitArr[0], 10, 64)
-		if err != nil {
-			log.Errorln(err)
-			limit = constants.DefaultGetConversationLimit
-		}
-	}
-
-	conversations, err := services.GetuserConversation(id, offset, limit, log)
+	conversations, err := services.GetuserConversation(userContext.Id, offset, limit, log)
 	if err != nil {
 		log.Errorln(err)
 		return []byte{}, err
 	}
 
-	return json.Marshal(conversations)
+	response := map[string]interface{}{"success": "ok", "conversation": conversations}
+
+	return json.Marshal(response)
 
 }

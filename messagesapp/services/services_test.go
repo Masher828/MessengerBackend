@@ -7,7 +7,6 @@ import (
 	"github.com/Masher828/MessengerBackend/common-packages/conf"
 	"github.com/Masher828/MessengerBackend/common-packages/log"
 	"github.com/Masher828/MessengerBackend/common-packages/system"
-	"github.com/Masher828/MessengerBackend/messagesapp/repository"
 	"github.com/sirupsen/logrus"
 )
 
@@ -30,5 +29,5 @@ func init() {
 }
 
 func Test_Check(t *testing.T) {
-	fmt.Println(repository.IsUserPartOfConversation(1, "d416731a-e49c-453a-8a91-0f6370ed818", logger))
+	// fmt.Println(repository.IsUserPartOfConversation(1, "d416731a-e49c-453a-8a91-0f6370ed818", logger))
 }

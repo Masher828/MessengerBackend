@@ -42,7 +42,7 @@ func UserSignup(user *models.UserModel, log *logrus.Entry) error {
 	return err
 }
 
-func UserSignIn(user *models.UserLoginModel, log *logrus.Entry) (*models.UserModelContext, error) {
+func UserSignIn(user *models.UserLoginModel, log *logrus.Entry) (*models.UserDetails, error) {
 	if _, err := user.IsValid(); err != nil {
 		log.Error(err)
 		return nil, system.InvalidCredentialsErr
@@ -66,11 +66,11 @@ func UserSignIn(user *models.UserLoginModel, log *logrus.Entry) (*models.UserMod
 	accessToken := uuid.NewString()
 	redisDb := system.SocialContext.Redis
 
-	userContext := userDetails.GetUserContext()
+	userContext := userDetails.CreateUserContext()
 	userContext.AccessToken = accessToken
 	data, _ := json.Marshal(userContext)
-  
-	redisDb.Set(context.TODO(), accessToken, data, 60*time.Minute)
+
+	redisDb.Set(context.TODO(), "accessToken:"+accessToken, data, 3*24*time.Hour)
 	return userContext, nil
 }
 

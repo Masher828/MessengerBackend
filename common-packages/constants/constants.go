@@ -15,8 +15,8 @@ var (
 	MessagesCollection         = "messages"
 
 	//Conversation defaults
-	DefaultGetConversationOffset int64 = 0
-	DefaultGetConversationLimit  int64 = 10
+	DefaultOffset int64 = 0
+	DefaultLimit  int64 = 10
 
 	//Message Status
 	MessageStatusSent      = "sent"
@@ -26,4 +26,8 @@ var (
 	MessageStatusDeleted   = "deleted"
 
 	MongoNoDocumentErro = "mongo: no documents in result"
+
+	//Middleware services constants
+	AuthFailed  = "AuthFailed"
+	UserContext = "UserContext"
 )

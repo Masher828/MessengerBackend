@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Masher828/MessengerBackend/common-packages/constants"
+	commonpackagesmodel "github.com/Masher828/MessengerBackend/common-packages/models"
+	"github.com/Masher828/MessengerBackend/common-packages/system"
 	"github.com/Masher828/MessengerBackend/messagesapp/models"
 	"github.com/Masher828/MessengerBackend/messagesapp/services"
 	"github.com/sirupsen/logrus"
@@ -29,4 +32,28 @@ func (controller *Controller) SendMessage(c web.C, w http.ResponseWriter, r *htt
 	response := map[string]string{"success": "ok"}
 	return json.Marshal(response)
 
+}
+
+func (Controller *Controller) GetMessagesForConversation(c web.C, w http.ResponseWriter, r *http.Request, log *logrus.Entry) ([]byte, error) {
+
+	conversationId := c.URLParams["conversationId"]
+
+	if len(conversationId) == 0 {
+		err := system.UserNotPartOfConversation
+		log.Errorln(err)
+		return nil, err
+	}
+
+	offset, limit := system.GetOffsetAndLimit(r.URL.Query()["offset"], r.URL.Query()["limit"], constants.DefaultOffset, constants.DefaultLimit, log)
+
+	userContext := c.Env[constants.UserContext].(commonpackagesmodel.UserModelContext)
+
+	messages, err := services.GetMessagesForConversation(conversationId, userContext.Id, offset, limit, log)
+	if err != nil {
+		log.Errorln(err)
+		return nil, err
+	}
+
+	response := map[string]interface{}{"success": "ok", "data": messages}
+	return json.Marshal(response)
 }

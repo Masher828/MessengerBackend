@@ -9,9 +9,12 @@ import (
 func PrepareRoutes(application *system.Application) {
 
 	//conversation
-	goji.Post("/messages/conversation", application.Route(&controllers.Controller{}, "CreateConversation"))
-	goji.Get("/messages/conversation/:userId", application.Route(&controllers.Controller{}, "GetConversation"))
-	goji.Get("/messages/converstaion/:conversationId", application.Route(&controllers.Controller{}, "GetConversationById"))
-	goji.Post("/messages/send", application.Route(&controllers.Controller{}, "SendMessage"))
+	goji.Post("/messages/conversation", application.Route(&controllers.Controller{}, "CreateConversation", false))
+	goji.Get("/messages/conversation", application.Route(&controllers.Controller{}, "GetConversation", false))
+	goji.Get("/messages/converstaion/:conversationId", application.Route(&controllers.Controller{}, "GetConversationById", false))
+
+	//messages
+	goji.Post("/messages/send", application.Route(&controllers.Controller{}, "SendMessage", false))
+	goji.Get("/messages/conversation/:conversationId/messages", application.Route(&controllers.Controller{}, "GetMessagesForConversation", false))
 
 }

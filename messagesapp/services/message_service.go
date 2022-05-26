@@ -42,3 +42,21 @@ func SendMessage(message models.Message, log *logrus.Entry) error {
 	return err
 
 }
+
+func GetMessagesForConversation(conversationId string, userId int64, offset, limit int64, log *logrus.Entry) ([]*models.Message, error) {
+
+	if !repository.IsUserPartOfConversation(userId, conversationId, log) {
+		err := system.UserNotPartOfConversation
+		log.Errorln(err)
+		return nil, err
+	}
+
+	messages, err := repository.GetMessagesForConversation(conversationId, userId, offset, limit, log)
+	if err != nil {
+		log.Errorln(err)
+		return nil, err
+	}
+
+	return messages, nil
+
+}

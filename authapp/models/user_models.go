@@ -26,7 +26,7 @@ type UserLoginModel struct {
 	Password string `json:"password"`
 }
 
-type UserModelContext struct {
+type UserDetails struct {
 	Id          int64  `json:"id"`
 	FullName    string `json:"name" column:"name"`
 	Email       string `json:"email" column:"email"`
@@ -57,12 +57,12 @@ func (user *UserModel) IsValid() (bool, error) {
 	return true, nil
 }
 
-func (user *UserModel) GetUserContext() *UserModelContext {
-	var userContext UserModelContext
-	userContext.Email = user.Email
-	userContext.FullName = user.FullName
-	userContext.Id = user.Id
-	return &userContext
+func (user *UserModel) CreateUserContext() *UserDetails {
+	var userDetails UserDetails
+	userDetails.Email = user.Email
+	userDetails.FullName = user.FullName
+	userDetails.Id = user.Id
+	return &userDetails
 }
 
 func (user *UserLoginModel) IsValid() (bool, error) {
