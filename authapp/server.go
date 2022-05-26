@@ -25,6 +25,8 @@ func main() {
 		return
 	}
 	var application = system.Application{}
+
+	goji.Use(application.ApplyAuth)
 	routes.PrepareRoutes(&application)
 
 	port := viper.GetString("apps.authapp.address")
