@@ -39,6 +39,7 @@ func (application *Application) Route(controller interface{}, route string) inte
 func (application *Application) ApplyAuth(c *web.C, h http.Handler) http.Handler {
 
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		if r.Method == "OPTIONS" {
 			w.Header().Set("Access-Control-Allow-Origin", viper.GetString("accessControlAllowOrigin"))
 			w.Header().Set("Access-Control-Allow-Headers", "*")
