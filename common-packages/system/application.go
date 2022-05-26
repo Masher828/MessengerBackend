@@ -6,7 +6,6 @@ import (
 
 	"github.com/Masher828/MessengerBackend/common-packages/log"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"github.com/zenazn/goji/web"
 )
 
@@ -40,9 +39,10 @@ func (application *Application) ApplyAuth(c *web.C, h http.Handler) http.Handler
 
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
 		if r.Method == "OPTIONS" {
-			w.Header().Set("Access-Control-Allow-Origin", viper.GetString("accessControlAllowOrigin"))
-			w.Header().Set("Access-Control-Allow-Headers", "*")
+
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("{}"))
 		}
