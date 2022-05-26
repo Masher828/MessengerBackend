@@ -24,10 +24,10 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-	var application = system.Application{}
+	var application = &system.Application{}
 
 	goji.Use(application.ApplyAuth)
-	routes.PrepareRoutes(&application)
+	routes.PrepareRoutes(application)
 
 	port := viper.GetString("apps.authapp.address")
 	if len(os.Args) > 1 {
