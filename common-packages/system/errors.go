@@ -16,8 +16,11 @@ var (
 	EmailAlreadyExists = errors.New("Email already exists")
 
 	// Conversation
-	InavlidGroupType = errors.New("please select a valid group type")
-	InavlidGroupName = errors.New("please enter a valid group name")
+	InvalidGroupType                  = errors.New("please select a valid group type")
+	InvalidGroupName                  = errors.New("please enter a valid group name")
+	InvalidPersonalChatName           = errors.New("personal chats cannot have name")
+	InvalidPersonalConversationMember = errors.New("you cannot add more than 1 user in personal conversation")
+	InvalidGroupMembersLimit          = errors.New("size of conversation can be between 2 - 200")
 
 	UserNotPartOfConversation = errors.New("conversation does not exist")
 

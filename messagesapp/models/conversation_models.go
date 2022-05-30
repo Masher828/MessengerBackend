@@ -5,22 +5,17 @@ import (
 	"github.com/Masher828/MessengerBackend/common-packages/system"
 )
 
-type CreateConversationRequest struct {
-	Conversation Conversation `json:"conversation"`
-	Users        []int64      `json:"users"`
-}
-
 type Conversation struct {
-	Id            string `json:"id" bson:"_id"`
-	Name          string `json:"name" bson:"name"` //it will have value only in case of type as group
-	Type          string `json:"type" bson:"type"`
-	Description   string `json:"description" bson:"description"`
-	RecentMessage string `json:"recentMessage" bson:"recentMessage"`
-	MembersCount  int64  `json:"membersCount" bson:"membersCount"`
-	Icon          string `json:"icon" bson:"icon"`
-	CreatedBy     string `json:"createdBy" bson:"createdBy"`
-	CreatedOn     int64  `json:"createdOn" bson:"createdOn"`
-	UpdatedOn     int64  `json:"updatedOn" bson:"updatedOn"`
+	Id            string  `json:"id" bson:"_id"`
+	Name          string  `json:"name" bson:"name"` //it will have value only in case of type as group
+	Type          string  `json:"type" bson:"type"`
+	Description   string  `json:"description" bson:"description"`
+	RecentMessage string  `json:"recentMessage" bson:"recentMessage"`
+	MemberIds     []int64 `json:"memberIds" bson:"memberIds"`
+	Icon          string  `json:"icon" bson:"icon"`
+	CreatedBy     string  `json:"createdBy" bson:"createdBy"`
+	CreatedOn     int64   `json:"createdOn" bson:"createdOn"`
+	UpdatedOn     int64   `json:"updatedOn" bson:"updatedOn"`
 }
 
 type UserConversation struct {
@@ -44,12 +39,24 @@ type ResponseUserConversation struct {
 
 func (conversation *Conversation) IsValid() (bool, error) {
 
+	if len(conversation.MemberIds) < 2 || len(conversation.MemberIds) >= 250 {
+		return false, system.InvalidGroupMembersLimit
+	}
+
+	if len(conversation.MemberIds) != 2 && conversation.Type == constants.ConversationTypePersonal {
+		return false, system.InvalidPersonalConversationMember
+	}
+
 	if conversation.Type != constants.ConversationTypeGroup && conversation.Type != constants.ConversationTypePersonal {
-		return false, system.InavlidGroupType
+		return false, system.InvalidGroupType
 	}
 
 	if conversation.Type == constants.ConversationTypeGroup && conversation.Name == "" {
-		return false, system.InavlidGroupName
+		return false, system.InvalidGroupName
+	}
+
+	if conversation.Type == constants.ConversationTypePersonal && len(conversation.Name) != 0 {
+		return false, system.InvalidPersonalChatName
 	}
 
 	return true, nil

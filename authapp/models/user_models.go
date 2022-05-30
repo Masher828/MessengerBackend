@@ -19,6 +19,7 @@ type UserModel struct {
 	DateOfBirth time.Time `json:"date_of_birth" column:"date_of_birth"`
 	DateCreated time.Time `json:"date_created" column:"date_created"`
 	LastUpdated time.Time `json:"last_updated" column:"last_updated"`
+	LastLogin   time.Time `json:"last_login" column:"last_login"`
 }
 
 type UserLoginModel struct {

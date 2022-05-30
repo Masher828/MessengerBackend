@@ -1,8 +1,11 @@
 package repository
 
 import (
+	"database/sql"
+
 	"github.com/Masher828/MessengerBackend/authapp/models"
 	"github.com/Masher828/MessengerBackend/common-packages/system"
+	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
@@ -68,4 +71,67 @@ func GetAllUsers(log *logrus.Entry) ([]string, error) {
 		names = append(names, name)
 	}
 	return names, nil
+}
+
+func GetUsersById(log *logrus.Entry, userIds interface{}) (map[int64]*models.UserModel, int, error) {
+
+	db := system.SocialContext.PostgresDB
+
+	query := "SELECT id, name, email, contact, country_code, country, date_of_birth, date_created, last_updated, last_login " +
+		"from social_user where id = ANY($1)"
+
+	rows, err := db.Query(query, pq.Array(userIds))
+	if err != nil {
+		log.Errorln(err)
+		return nil, 0, err
+	}
+	count := 0
+	var id int64
+
+	result := make(map[int64]*models.UserModel)
+
+	var name, email, contact, country_code, country sql.NullString
+
+	var date_created, date_of_birth, last_updated, last_login sql.NullTime
+	for rows.Next() {
+
+		err = rows.Scan(&id, &name, &email, &contact, &country_code, &country, &date_of_birth, &date_created, &last_updated, &last_login)
+		if err != nil {
+			log.Errorln(err)
+			continue
+		}
+
+		count += 1
+
+		user := models.UserModel{
+			Id:          id,
+			FullName:    name.String,
+			Email:       email.String,
+			Contact:     contact.String,
+			CountryCode: country_code.String,
+			DateCreated: date_created.Time,
+			LastUpdated: last_updated.Time,
+			LastLogin:   last_login.Time,
+		}
+
+		result[id] = &user
+
+	}
+
+	return result, count, err
+
+}
+
+func CheckIfUsersExist(log *logrus.Entry, userIds []int64) (bool, error) {
+	db := system.SocialContext.PostgresDB
+
+	query := "SELECT count(*) from social_user where id = ANY($1)"
+
+	var count int
+	err := db.QueryRow(query, pq.Array(userIds)).Scan(&count)
+	if err != nil {
+		log.Errorln(err)
+	}
+
+	return count == len(userIds), err
 }

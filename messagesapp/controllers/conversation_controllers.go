@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/Masher828/MessengerBackend/common-packages/constants"
@@ -18,7 +19,7 @@ type Controller struct {
 }
 
 func (controller *Controller) CreateConversation(c web.C, w http.ResponseWriter, r *http.Request, log *logrus.Entry) ([]byte, error) {
-	var conversation models.CreateConversationRequest
+	var conversation models.Conversation
 
 	response := make(map[string]string)
 
@@ -28,7 +29,9 @@ func (controller *Controller) CreateConversation(c web.C, w http.ResponseWriter,
 		return []byte{}, err
 	}
 
-	err = services.CreateConversation(&conversation.Conversation, conversation.Users, log)
+	fmt.Println(conversation)
+
+	err = services.CreateConversation(&conversation, log)
 	if err != nil {
 		log.Errorln(err)
 		return []byte{}, err
