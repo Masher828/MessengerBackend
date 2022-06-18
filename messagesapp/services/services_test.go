@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -31,4 +32,10 @@ func init() {
 
 func Test_Check(t *testing.T) {
 	fmt.Println(messagesapprepository.GetUserConversation(5, 0, 10, logger))
+}
+
+func Test_red(t *testing.T) {
+	system.SocialContext.Redis.LPush(context.TODO(), "checking", "ddd12344")
+
+	fmt.Println(system.SocialContext.Redis.LRange(context.TODO(), "checking", 0, 3).Result())
 }

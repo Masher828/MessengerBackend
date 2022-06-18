@@ -19,13 +19,14 @@ type Conversation struct {
 }
 
 type UserConversation struct {
-	Id             string `json:"id" bson:"_id"`
-	UserId         int64  `json:"userId" bson:"userId"`
-	ConversationId string `json:"conversationId" bson:"conversationId"`
-	UpdatedOn      int64  `json:"updatedOn" bson:"updatedOn"`
-	CreatedOn      int64  `json:"createdOn" bson:"createdOn"`
-	IsArchived     bool   `json:"isArchived" bson:"isArchived"`
-	IsMuted        bool   `json:"isMuted" bson:"isMuted"`
+	Id              string   `json:"id" bson:"_id"`
+	UserId          int64    `json:"userId" bson:"userId"`
+	ConversationId  string   `json:"conversationId" bson:"conversationId"`
+	UpdatedOn       int64    `json:"updatedOn" bson:"updatedOn"`
+	CreatedOn       int64    `json:"createdOn" bson:"createdOn"`
+	IsArchived      bool     `json:"isArchived" bson:"isArchived"`
+	IsMuted         bool     `json:"isMuted" bson:"isMuted"`
+	StarredMessages []string `json:"starredMessages" bson:"starredMessages"`
 }
 
 type ResponseUserConversation struct {

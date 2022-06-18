@@ -132,8 +132,9 @@ func GetUserContext(accessToken string) (*models.UserModelContext, error) {
 
 	redisDb := SocialContext.Redis
 
-	key := "accessToken:"
-	result := redisDb.Get(context.TODO(), key+accessToken)
+	fmt.Println(fmt.Sprintf(constants.AccessTokenToUser, accessToken))
+
+	result := redisDb.Get(context.TODO(), fmt.Sprintf(constants.AccessTokenToUser, accessToken))
 
 	if result.Err() != nil {
 		fmt.Println(result.Err())

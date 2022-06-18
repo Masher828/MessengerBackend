@@ -59,3 +59,33 @@ func (Controller *Controller) GetMessagesForConversation(c web.C, w http.Respons
 	response := map[string]interface{}{"success": "ok", "data": messages}
 	return json.Marshal(response)
 }
+
+func (Controller *Controller) StartConversationMessage(c web.C, w http.ResponseWriter, r *http.Request, log *logrus.Entry) ([]byte, error) {
+
+	conversationId := c.URLParams["conversationId"]
+
+	messageId := c.URLParams["messageId"]
+
+	if len(conversationId) == 0 {
+		err := system.InvalidConversationId
+		log.Errorln(err)
+		return nil, err
+	}
+
+	if len(messageId) == 0 {
+		err := system.InvalidMessageId
+		log.Errorln(err)
+		return nil, err
+	}
+
+	userContext := c.Env[constants.UserContext].(commonpackagesmodel.UserModelContext)
+
+	err := services.StarConversationMessage(conversationId, messageId, userContext.Id, log)
+	if err != nil {
+		log.Errorln(err)
+		return nil, err
+	}
+
+	response := map[string]interface{}{"success": "ok"}
+	return json.Marshal(response)
+}

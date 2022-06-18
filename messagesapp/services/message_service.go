@@ -65,3 +65,19 @@ func GetMessagesForConversation(conversationId string, userId int64, offset, lim
 	return messages, nil
 
 }
+
+func StarConversationMessage(conversationId, messageId string, userid int64, log *logrus.Entry) error {
+
+	if !repository.IsUserPartOfConversation(userid, conversationId, log) {
+		log.Errorln(system.UserNotPartOfConversation)
+		return system.UserNotPartOfConversation
+	}
+
+	err := repository.AddMessageToStarredMessages(conversationId, messageId, userid, log)
+	if err != nil {
+		log.Errorln(err)
+	}
+
+	return err
+
+}

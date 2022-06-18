@@ -103,3 +103,21 @@ func UpdateConversation(conversationId string, dataToBeUpdated map[string]interf
 
 	return err
 }
+
+func AddMessageToStarredMessages(conversationId, messageId string, userId int64, log *logrus.Entry) error {
+
+	client := system.SocialContext.MongoClient
+	db := client.Database(constants.DatabaseSocialDB).Collection(constants.UserConversationCollection)
+
+	update := bson.M{"$push": bson.M{"starredMessages": messageId}}
+
+	where := bson.M{"conversationId": conversationId, "userId": userId}
+
+	_, err := db.UpdateOne(context.TODO(), where, update)
+	if err != nil {
+		log.Errorln(err)
+	}
+
+	return err
+
+}

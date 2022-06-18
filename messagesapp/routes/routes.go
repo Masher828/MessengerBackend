@@ -16,5 +16,7 @@ func PrepareRoutes(application *system.Application) {
 	//messages
 	goji.Post("/messages/send", application.Route(&controllers.Controller{}, "SendMessage", false))
 	goji.Get("/messages/conversation/:conversationId/messages", application.Route(&controllers.Controller{}, "GetMessagesForConversation", false))
+	goji.Post("/messages/conversation/:conversationId/message/:messageId", application.Route(&controllers.Controller{}, "StartConversationMessage", false))
+	goji.Delete("/messages/conversation/:conversationId/message/:messageId", application.Route(&controllers.Controller{}, "DeleteMessage", false))
 
 }

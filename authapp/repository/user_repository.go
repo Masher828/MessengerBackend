@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/Masher828/MessengerBackend/authapp/models"
 	"github.com/Masher828/MessengerBackend/common-packages/system"
@@ -18,13 +19,13 @@ func GetNextHibernateSequence() int64 {
 }
 
 func InsertUserToDB(user *models.UserModel, log *logrus.Entry) error {
-	query := `INSERT INTO social_user (id, name, email, password, contact, country_code, country, 
+	query := `INSERT INTO social_user (id, name, email, password, contact, country_code, country, is_locked,
 		date_of_birth, last_updated, date_created) VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
 
 	db := system.SocialContext.PostgresDB
 
 	now := system.GetUTCTime()
-	_, err := db.Exec(query, user.Id, user.FullName, user.Email, user.Password, user.Contact, user.CountryCode,
+	_, err := db.Exec(query, user.Id, user.FullName, user.Email, user.Password, user.Contact, user.CountryCode, false,
 		user.Country, user.DateOfBirth, now, now)
 
 	if err != nil {
@@ -134,4 +135,52 @@ func CheckIfUsersExist(log *logrus.Entry, userIds []int64) (bool, error) {
 	}
 
 	return count == len(userIds), err
+}
+
+func UpdateLastLoginTime(log *logrus.Entry, userId int64) error {
+	db := system.SocialContext.PostgresDB
+
+	query := "UPDATE social_user SET last_login = $1 WHERE id = $2"
+
+	now := system.GetUTCTime()
+
+	_, err := db.Exec(query, now, userId)
+	if err != nil {
+		log.Errorln(err)
+	}
+
+	return err
+}
+
+func ToggleUserlock(log *logrus.Entry, emailId string, lock bool) error {
+
+	db := system.SocialContext.PostgresDB
+
+	query := "UPDATE social_user SET is_locked = $1 WHERE email = $2"
+
+	_, err := db.Query(query, lock, emailId)
+	if err != nil {
+		log.Errorln(err)
+	}
+	return err
+}
+
+func IsUserLocked(log *logrus.Entry, emailId string) (bool, error) {
+
+	db := system.SocialContext.PostgresDB
+
+	query := "SELECT is_locked FROM social_user WHERE email = $1"
+
+	var isLocked sql.NullBool
+
+	err := db.QueryRow(query, emailId).Scan(&isLocked)
+
+	if err != nil {
+		log.Errorln(err)
+	}
+
+	fmt.Println(isLocked, "kid")
+
+	return isLocked.Bool, err
+
 }

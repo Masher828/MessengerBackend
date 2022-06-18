@@ -22,9 +22,13 @@ var (
 	InvalidPersonalConversationMember = errors.New("you cannot add more than 1 user in personal conversation")
 	InvalidGroupMembersLimit          = errors.New("size of conversation can be between 2 - 200")
 
+	InvalidConversationId     = errors.New("invalid conversation id")
+	InvalidMessageId          = errors.New("invalid message id")
 	UserNotPartOfConversation = errors.New("conversation does not exist")
 
 	UnauthorizedErr            = errors.New("user is not authorized to perfrom the task")
 	AccessTokenDoesNotExistErr = errors.New("access token does not exist in the redis")
 	InternalServerErr          = errors.New("internal server error")
+
+	AccountBlockedError = errors.New("Account is blocked for safety reasons. Please verify your email")
 )

@@ -51,3 +51,20 @@ func GetMessagesForConversation(conversationId string, userId, offset, limit int
 	}
 	return messages, err
 }
+
+func IsUserTheSenderofMessage(userid int64, messageId, conversationId string, log *logrus.Entry) (bool, error) {
+
+	client := system.SocialContext.MongoClient
+	db := client.Database(constants.DatabaseSocialDB).Collection(constants.MessagesCollection)
+
+	query := bson.M{"_id": messageId, "conversationId": conversationId, "userid": userid}
+
+	var message *models.Message
+	err := db.FindOne(context.TODO(), query).Decode(&message)
+
+	if err != nil {
+		log.Errorln(err)
+	}
+	return message.Id == messageId, err
+
+}

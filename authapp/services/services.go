@@ -3,10 +3,13 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/Masher828/MessengerBackend/authapp/models"
 	"github.com/Masher828/MessengerBackend/authapp/repository"
+	"github.com/Masher828/MessengerBackend/common-packages/constants"
 	"github.com/Masher828/MessengerBackend/common-packages/system"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -60,7 +63,19 @@ func UserSignIn(user *models.UserLoginModel, log *logrus.Entry) (*models.UserDet
 
 	if err != nil {
 		log.Errorln(err)
+		fmt.Println("check")
+		go IncrementIncorrectPasswordCountToRedis(user.Email, log)
 		return nil, system.InvalidCredentialsErr
+	}
+
+	isLocked, err := repository.IsUserLocked(log, user.Email)
+	fmt.Println(isLocked)
+	if err != nil {
+		log.Errorln(err)
+	}
+
+	if isLocked {
+		return nil, system.AccountBlockedError
 	}
 
 	accessToken := uuid.NewString()
@@ -70,12 +85,54 @@ func UserSignIn(user *models.UserLoginModel, log *logrus.Entry) (*models.UserDet
 	userContext.AccessToken = accessToken
 	data, _ := json.Marshal(userContext)
 
-	redisDb.Set(context.TODO(), "accessToken:"+accessToken, data, 3*24*time.Hour)
+	AccessTokenToUser := fmt.Sprintf(constants.AccessTokenToUser, accessToken)
+
+	redisDb.Set(context.TODO(), AccessTokenToUser, data, constants.AccessTokenExpiry)
+
+	go repository.UpdateLastLoginTime(log, userContext.Id)
+
+	go system.AddAccesstokenToRedis(userContext.Id, userContext.AccessToken, log)
+
+	//remove it later
+	go ClearIncorrectPasswordCountFromRedis(log, user.Email)
+
 	return userContext, nil
 }
 
+func IncrementIncorrectPasswordCountToRedis(emailId string, log *logrus.Entry) {
+
+	redisDb := system.SocialContext.Redis
+
+	key := fmt.Sprintf(constants.IncorrectPasswordCountEmail, emailId)
+	data, err := redisDb.Get(context.TODO(), key).Result()
+	if err != nil {
+		log.Errorln(err)
+	}
+
+	count, err := strconv.Atoi(data)
+	if err != nil {
+		log.Errorln(err)
+	}
+
+	if count < constants.MaxIncorrectPasswordAllowed {
+		redisDb.Set(context.TODO(), key, count+1, constants.IncorrectPasswordCountEmailExpiry)
+	} else if count == constants.MaxIncorrectPasswordAllowed {
+		err := repository.ToggleUserlock(log, emailId, true)
+		if err != nil {
+			log.Errorln(err)
+		}
+	}
+
+}
+
+func ClearIncorrectPasswordCountFromRedis(log *logrus.Entry, email string) {
+
+	redisDb := system.SocialContext.Redis
+
+	redisDb.Del(context.TODO(), fmt.Sprintf(constants.IncorrectPasswordCountEmail, email))
+
+}
+
 func GetAllUsers(log *logrus.Entry) ([]string, error) {
-	// constants.SendMail()
-	log.Errorln("hii")
 	return repository.GetAllUsers(log)
 }

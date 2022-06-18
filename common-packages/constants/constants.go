@@ -1,5 +1,7 @@
 package constants
 
+import "time"
+
 var (
 
 	//Conversation Type
@@ -30,4 +32,14 @@ var (
 	//Middleware services constants
 	AuthFailed  = "AuthFailed"
 	UserContext = "UserContext"
+
+	//Auth
+	IncorrectPasswordCountEmail       = "IncorrectPasswordCountEmail:%s"
+	IncorrectPasswordCountEmailExpiry = 30 * 24 * time.Hour // 30 days
+	MaxIncorrectPasswordAllowed       = 5
+
+	//Access Token Constants
+	UserToAccessTokenList = "UserToAccessTokenKeys:%s"
+	AccessTokenToUser     = "AccessTokenTouser:%s"
+	AccessTokenExpiry     = 3 * 24 * time.Hour // 3 days
 )
