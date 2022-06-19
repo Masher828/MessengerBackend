@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/Masher828/MessengerBackend/common-packages/constants"
 	"github.com/Masher828/MessengerBackend/common-packages/system"
+	constants2 "github.com/Masher828/MessengerBackend/messagesapp/constants"
 	"github.com/Masher828/MessengerBackend/messagesapp/models"
 	"github.com/Masher828/MessengerBackend/messagesapp/repository"
 	"github.com/google/uuid"
@@ -80,4 +81,40 @@ func StarConversationMessage(conversationId, messageId string, userid int64, log
 
 	return err
 
+}
+
+func DeleteMessage(userId int64, messageId, deleteFor string, log *logrus.Entry) error {
+
+	if deleteFor != constants2.DeleteForAll && deleteFor != constants2.DeleteForMe {
+		log.Errorln(system.InvalidPayloadData)
+		return system.InvalidPayloadData
+	}
+
+	isSender, err := repository.IsUserTheSenderofMessage(userId, messageId, "", log)
+	if err != nil {
+		log.Errorln(err)
+		return err
+	}
+
+	var queryToUpdate map[string]interface{}
+
+	if deleteFor == constants2.DeleteForAll {
+
+		if !isSender {
+			log.Errorln(system.UnauthorizedErr)
+			return system.UnauthorizedErr
+		}
+
+		queryToUpdate["isDeleted"] = true
+
+	} else {
+		queryToUpdate["$push"] = map[string]interface{}{"deletedFor": userId}
+	}
+
+	err = repository.UpdateMessageToDeleted(messageId, queryToUpdate, log)
+	if err != nil {
+		log.Errorln(err)
+	}
+
+	return err
 }

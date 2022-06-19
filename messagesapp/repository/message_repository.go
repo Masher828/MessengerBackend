@@ -35,7 +35,7 @@ func GetMessagesForConversation(conversationId string, userId, offset, limit int
 	opts.SetSkip(offset)
 	opts.SetLimit(limit)
 
-	where := bson.M{"conversationId": conversationId, "deletedFor": bson.M{"$nin": []int64{userId}}}
+	where := bson.M{"conversationId": conversationId, "deletedFor": bson.M{"$ne": userId}, "isDeleted": false}
 
 	result, err := db.Find(context.TODO(), where, opts)
 	if err != nil {
@@ -57,7 +57,11 @@ func IsUserTheSenderofMessage(userid int64, messageId, conversationId string, lo
 	client := system.SocialContext.MongoClient
 	db := client.Database(constants.DatabaseSocialDB).Collection(constants.MessagesCollection)
 
-	query := bson.M{"_id": messageId, "conversationId": conversationId, "userid": userid}
+	query := bson.M{"_id": messageId, "userid": userid}
+
+	if len(conversationId) > 0 {
+		query["conversationId"] = conversationId
+	}
 
 	var message *models.Message
 	err := db.FindOne(context.TODO(), query).Decode(&message)
@@ -67,4 +71,17 @@ func IsUserTheSenderofMessage(userid int64, messageId, conversationId string, lo
 	}
 	return message.Id == messageId, err
 
+}
+
+func UpdateMessageToDeleted(messageId string, update map[string]interface{}, log *logrus.Entry) error {
+
+	client := system.SocialContext.MongoClient
+	db := client.Database(constants.DatabaseSocialDB).Collection(constants.MessagesCollection)
+
+	_, err := db.UpdateOne(context.TODO(), bson.M{"_id": messageId}, update)
+	if err != nil {
+		log.Errorln(err)
+	}
+
+	return err
 }

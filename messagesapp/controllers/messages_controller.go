@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/Masher828/MessengerBackend/common-packages/constants"
 	commonpackagesmodel "github.com/Masher828/MessengerBackend/common-packages/models"
@@ -84,6 +85,35 @@ func (Controller *Controller) StartConversationMessage(c web.C, w http.ResponseW
 	if err != nil {
 		log.Errorln(err)
 		return nil, err
+	}
+
+	response := map[string]interface{}{"success": "ok"}
+	return json.Marshal(response)
+}
+
+func (controller *Controller) DeleteMessage(c web.C, w http.ResponseWriter, r *http.Request, log *logrus.Entry) ([]byte, error) {
+
+	messageId := c.URLParams["messageId"]
+
+	if len(messageId) == 0 {
+		log.Errorln(system.InvalidMessageId)
+		return []byte{}, system.InvalidMessageId
+	}
+
+	deleteFor := r.URL.Query()["deleteFor"] //all & me
+
+	if len(deleteFor) == 0 {
+		log.Errorln(system.InvalidPayloadData)
+		return []byte{}, system.InvalidPayloadData
+	}
+
+	userContext := c.Env[constants.UserContext].(commonpackagesmodel.UserModelContext)
+
+	err := services.DeleteMessage(userContext.Id, messageId, strings.ToLower(deleteFor[0]), log)
+
+	if err != nil {
+		log.Errorln(err)
+		return []byte{}, err
 	}
 
 	response := map[string]interface{}{"success": "ok"}

@@ -11,6 +11,7 @@ type Message struct {
 	Type           string  `json:"type" bson:"type"`
 	Body           string  `json:"body" bson:"body"`
 	Status         string  `json:"status" bson:"status"`
+	IsDeleted      bool    `json:"isDeleted" bson:"isDeleted"`
 	DeletedFor     []int64 `json:"deletedFor" bson:"deletedFor"`
 	SentOn         int64   `json:"sentOn" bson:"sentOn"`
 	DeliveredOn    int64   `json:"deliveredOn" bson:"deliveredOn"`
