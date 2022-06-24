@@ -31,7 +31,7 @@ func GetMessagesForConversation(conversationId string, userId, offset, limit int
 
 	opts := options.Find()
 
-	opts.SetSort(bson.M{"senton": -1})
+	opts.SetSort(bson.M{"sentOn": -1})
 	opts.SetSkip(offset)
 	opts.SetLimit(limit)
 
