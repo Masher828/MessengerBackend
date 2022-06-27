@@ -1,8 +1,6 @@
 package services
 
 import (
-	"reflect"
-
 	authapprepository "github.com/Masher828/MessengerBackend/authapp/repository"
 	"github.com/Masher828/MessengerBackend/common-packages/constants"
 	"github.com/Masher828/MessengerBackend/common-packages/system"
@@ -33,11 +31,11 @@ func CreateConversation(conversation *models.Conversation, log *logrus.Entry) er
 
 	var userConversations []interface{}
 
-	exists, err := authapprepository.CheckIfUsersExist(log, conversation.MemberIds)
+	userMap, count, err := authapprepository.GetUsersById(log, conversation.MemberIds)
 	if err != nil {
 		log.Errorln(err)
 		return err
-	} else if !exists { // to check if all the users exists in the the database
+	} else if count != len(conversation.MemberIds) { // to check if all the users exists in the the database
 		err = system.InvalidPayloadData
 		log.Errorln(err)
 		return err
@@ -45,13 +43,19 @@ func CreateConversation(conversation *models.Conversation, log *logrus.Entry) er
 
 	for _, userId := range conversation.MemberIds {
 		userConversation := models.UserConversation{
-			Id:             string(uuid.New().String()),
-			ConversationId: conversation.Id,
-			UserId:         userId,
-			IsArchived:     false,
-			IsMuted:        false,
-			UpdatedOn:      now,
-			CreatedOn:      now,
+			Id:               string(uuid.New().String()),
+			ConversationId:   conversation.Id,
+			ConversationName: conversation.Name,
+			UserId:           userId,
+			IsArchived:       false,
+			IsMuted:          false,
+			UpdatedOn:        now,
+			CreatedOn:        now,
+		}
+		if conversation.Type == constants.ConversationTypeGroup {
+			userConversation.ConversationName = conversation.Name
+		} else {
+			userConversation.ConversationName = userMap[userId].FullName
 		}
 
 		userConversations = append(userConversations, &userConversation)
@@ -73,42 +77,13 @@ func GetuserConversation(id int64, offset, limit int64, log *logrus.Entry) ([]mo
 		return nil, err
 	}
 
-	userIdsMap := map[int64][]int{}
+	return conversations, err
+}
 
-	for i := range conversations {
-		if conversations[i].Conversation[0].Type == constants.ConversationTypePersonal {
-			var friendId int64
-			if conversations[i].Conversation[0].MemberIds[0] == id {
-				friendId = conversations[i].Conversation[0].MemberIds[1]
-			} else {
-				friendId = conversations[i].Conversation[0].MemberIds[0]
-			}
-
-			if _, ok := userIdsMap[friendId]; ok {
-				userIdsMap[friendId] = append(userIdsMap[friendId], i)
-			} else {
-				userIdsMap[friendId] = []int{i}
-			}
-		}
-	}
-
-	userids := []int64{}
-
-	keys := reflect.ValueOf(userIdsMap).MapKeys()
-	for i := range keys {
-		userids = append(userids, int64(keys[i].Int()))
-	}
-
-	userMap, _, err := authapprepository.GetUsersById(log, userids)
+func GetConversationByName(id int64, pattern string, log *logrus.Entry) ([]models.UserConversation, error) {
+	conversations, err := messagesapprepository.GetConversationByName(id, pattern, log)
 	if err != nil {
 		log.Errorln(err)
-		return nil, err
-	}
-
-	for userId := range userIdsMap {
-		for _, i := range userIdsMap[userId] {
-			conversations[i].Conversation[0].Name = userMap[userId].FullName
-		}
 	}
 
 	return conversations, err

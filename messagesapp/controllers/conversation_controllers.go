@@ -49,6 +49,7 @@ func (controller *Controller) GetConversation(c web.C, w http.ResponseWriter, r 
 	offset, limit := system.GetOffsetAndLimit(r.URL.Query()["offset"], r.URL.Query()["limit"], constants.DefaultOffset, constants.DefaultLimit, log)
 
 	conversations, err := services.GetuserConversation(userContext.Id, offset, limit, log)
+
 	if err != nil {
 		log.Errorln(err)
 		return []byte{}, err
@@ -57,5 +58,26 @@ func (controller *Controller) GetConversation(c web.C, w http.ResponseWriter, r 
 	response := map[string]interface{}{"success": "ok", "conversation": conversations}
 
 	return json.Marshal(response)
+
+}
+
+func (controller *Controller) GetConversationByName(c web.C, w http.ResponseWriter, r *http.Request, log *logrus.Entry) ([]byte, error) {
+
+	userContext := c.Env[constants.UserContext].((commonpackagesmodel.UserModelContext))
+
+	searchQuery := r.URL.Query()["pattern"]
+
+	pattern := ""
+	if len(searchQuery) != 0 {
+		pattern = searchQuery[0]
+	}
+
+	conversations, err := services.GetConversationByName(userContext.Id, pattern, log)
+	if err != nil {
+		log.Errorln(err)
+		return nil, err
+	}
+
+	return json.Marshal(conversations)
 
 }

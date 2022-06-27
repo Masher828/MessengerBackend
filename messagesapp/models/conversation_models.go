@@ -7,7 +7,7 @@ import (
 
 type Conversation struct {
 	Id            string  `json:"id" bson:"_id"`
-	Name          string  `json:"name" bson:"name"` //it will have value only in case of type as group
+	Name          string  `json:"name"` //it will have value only in case of type as group
 	Type          string  `json:"type" bson:"type"`
 	Description   string  `json:"description" bson:"description"`
 	RecentMessage string  `json:"recentMessage" bson:"recentMessage"`
@@ -19,23 +19,34 @@ type Conversation struct {
 }
 
 type UserConversation struct {
-	Id              string   `json:"id" bson:"_id"`
-	UserId          int64    `json:"userId" bson:"userId"`
-	ConversationId  string   `json:"conversationId" bson:"conversationId"`
-	UpdatedOn       int64    `json:"updatedOn" bson:"updatedOn"`
-	CreatedOn       int64    `json:"createdOn" bson:"createdOn"`
-	IsArchived      bool     `json:"isArchived" bson:"isArchived"`
-	IsMuted         bool     `json:"isMuted" bson:"isMuted"`
-	StarredMessages []string `json:"starredMessages" bson:"starredMessages"`
+	Id               string   `json:"id" bson:"_id"`
+	UserId           int64    `json:"userId" bson:"userId"`
+	ConversationName string   `json:"conversationName" bson:"conversationName"`
+	ConversationId   string   `json:"conversationId" bson:"conversationId"`
+	UpdatedOn        int64    `json:"updatedOn" bson:"updatedOn"`
+	CreatedOn        int64    `json:"createdOn" bson:"createdOn"`
+	IsArchived       bool     `json:"isArchived" bson:"isArchived"`
+	IsMuted          bool     `json:"isMuted" bson:"isMuted"`
+	StarredMessages  []string `json:"starredMessages" bson:"starredMessages"`
+}
+
+type ResponseConversation struct {
+	Id            string  `json:"id" bson:"_id"`
+	Type          string  `json:"type" bson:"type"`
+	Description   string  `json:"description" bson:"description"`
+	RecentMessage string  `json:"recentMessage" bson:"recentMessage"`
+	MemberIds     []int64 `json:"memberIds" bson:"memberIds"`
+	Icon          string  `json:"icon" bson:"icon"`
 }
 
 type ResponseUserConversation struct {
-	Id             string          `json:"id" bson:"_id"`
-	UserId         int64           `json:"userId" bson:"userId"`
-	ConversationId string          `json:"conversationId" bson:"conversationId"`
-	IsArchived     bool            `json:"isArchived" bson:"isArchived"`
-	IsMuted        bool            `json:"isMuted" bson:"isMuted"`
-	Conversation   []*Conversation `json:"conversation" bson:"conversation"`
+	Id               string                  `json:"id" bson:"_id"`
+	UserId           int64                   `json:"userId" bson:"userId"`
+	ConversationId   string                  `json:"conversationId" bson:"conversationId"`
+	IsArchived       bool                    `json:"isArchived" bson:"isArchived"`
+	IsMuted          bool                    `json:"isMuted" bson:"isMuted"`
+	ConversationName string                  `json:"name" bson:"conversationName"`
+	Conversation     []*ResponseConversation `json:"conversation" bson:"conversation"`
 }
 
 func (conversation *Conversation) IsValid() (bool, error) {

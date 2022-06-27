@@ -49,27 +49,28 @@ func GetUserByEmail(email string, log *logrus.Entry) (*models.UserModel, error) 
 	return &user, err
 }
 
-func GetAllUsers(log *logrus.Entry) ([]string, error) {
-	query := "SELECT name FROM social_user"
+func GetAllUsers(log *logrus.Entry) (map[int64]string, error) {
+	query := "SELECT name, id FROM social_user"
 
 	db := system.SocialContext.PostgresDB
 
 	rows, err := db.Query(query)
 	if err != nil {
 		log.Errorln(err)
-		return []string{}, err
+		return map[int64]string{}, err
 	}
 
-	var names []string
+	names := make(map[int64]string)
 	for rows.Next() {
 		var name string
-		err = rows.Scan(&name)
+		var id int64
+		err = rows.Scan(&name, &id)
 		if err != nil {
 			log.Error(err)
 			continue
 		}
 
-		names = append(names, name)
+		names[id] = name
 	}
 	return names, nil
 }

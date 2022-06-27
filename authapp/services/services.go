@@ -133,6 +133,6 @@ func ClearIncorrectPasswordCountFromRedis(log *logrus.Entry, email string) {
 
 }
 
-func GetAllUsers(log *logrus.Entry) ([]string, error) {
+func GetAllUsers(log *logrus.Entry) (map[int64]string, error) {
 	return repository.GetAllUsers(log)
 }

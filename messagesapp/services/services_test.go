@@ -31,11 +31,15 @@ func init() {
 }
 
 func Test_Check(t *testing.T) {
-	fmt.Println(messagesapprepository.GetUserConversation(5, 0, 10, logger))
+	fmt.Println(messagesapprepository.GetUserConversation(1, 0, 10, "", logger))
 }
 
 func Test_red(t *testing.T) {
 	system.SocialContext.Redis.LPush(context.TODO(), "checking", "ddd12344")
 
-	fmt.Println(system.SocialContext.Redis.LRange(context.TODO(), "checking", 0, 3).Result())
+	fmt.Println(system.SocialContext.Redis.LRange(context.TODO(), "checking", 0, 2).Result())
+}
+
+func Test_Conversation(t *testing.T) {
+	fmt.Println(messagesapprepository.GetConversationByName(5, "pump", logger))
 }

@@ -2,12 +2,14 @@ package repository
 
 import (
 	"context"
+	"regexp"
 
 	"github.com/Masher828/MessengerBackend/common-packages/constants"
 	"github.com/Masher828/MessengerBackend/common-packages/system"
 	"github.com/Masher828/MessengerBackend/messagesapp/models"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -33,6 +35,32 @@ func AddUserToConversation(userConversations []interface{}, log *logrus.Entry) e
 		log.Errorln(err)
 	}
 	return err
+}
+
+func GetConversationByName(userId int64, pattern string, log *logrus.Entry) ([]models.UserConversation, error) {
+	client := system.SocialContext.MongoClient
+	db := client.Database(constants.DatabaseSocialDB).Collection(constants.UserConversationCollection)
+
+	var result []models.UserConversation
+
+	searchQuery := ".*" + regexp.QuoteMeta(pattern) + ".*"
+
+	where := bson.M{"userId": userId, "conversationName": bson.M{"$regex": primitive.Regex{Pattern: searchQuery, Options: "i"}}}
+
+	cursor, err := db.Find(context.TODO(), where)
+	if err != nil {
+		log.Errorln(err)
+		return result, err
+	}
+
+	err = cursor.All(context.TODO(), &result)
+	if err != nil {
+		log.Errorln(err)
+		return nil, err
+	}
+
+	return result, err
+
 }
 
 func GetUserConversation(userId int64, offset, limit int64, log *logrus.Entry) ([]models.ResponseUserConversation, error) {
