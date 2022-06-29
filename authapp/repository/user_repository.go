@@ -20,13 +20,13 @@ func GetNextHibernateSequence() int64 {
 
 func InsertUserToDB(user *models.UserModel, log *logrus.Entry) error {
 	query := `INSERT INTO social_user (id, name, email, password, contact, country_code, country, is_locked,
-		date_of_birth, last_updated, date_created) VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+		date_of_birth, last_updated, date_created) VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 
 	db := system.SocialContext.PostgresDB
 
 	now := system.GetUTCTime()
-	_, err := db.Exec(query, user.Id, user.FullName, user.Email, user.Password, user.Contact, user.CountryCode, false,
-		user.Country, user.DateOfBirth, now, now)
+	_, err := db.Exec(query, user.Id, user.FullName, user.Email, user.Password, user.Contact, user.CountryCode,
+		user.Country, false, user.DateOfBirth, now, now)
 
 	if err != nil {
 		log.Errorln(err)
