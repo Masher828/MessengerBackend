@@ -31,7 +31,7 @@ func init() {
 }
 
 func Test_Check(t *testing.T) {
-	fmt.Println(messagesapprepository.GetUserConversation(1, 0, 10, "", logger))
+	fmt.Println(messagesapprepository.GetUserConversation(1, 0, 10, logger))
 }
 
 func Test_red(t *testing.T) {

@@ -43,19 +43,23 @@ func CreateConversation(conversation *models.Conversation, log *logrus.Entry) er
 
 	for _, userId := range conversation.MemberIds {
 		userConversation := models.UserConversation{
-			Id:               string(uuid.New().String()),
-			ConversationId:   conversation.Id,
-			ConversationName: conversation.Name,
-			UserId:           userId,
-			IsArchived:       false,
-			IsMuted:          false,
-			UpdatedOn:        now,
-			CreatedOn:        now,
+			Id:             string(uuid.New().String()),
+			ConversationId: conversation.Id,
+			UserId:         userId,
+			IsArchived:     false,
+			IsMuted:        false,
+			UpdatedOn:      now,
+			CreatedOn:      now,
 		}
 		if conversation.Type == constants.ConversationTypeGroup {
 			userConversation.ConversationName = conversation.Name
 		} else {
-			userConversation.ConversationName = userMap[userId].FullName
+			if conversation.MemberIds[0] == userId {
+				userConversation.ConversationName = userMap[conversation.MemberIds[1]].FullName
+			} else {
+				userConversation.ConversationName = userMap[conversation.MemberIds[0]].FullName
+			}
+
 		}
 
 		userConversations = append(userConversations, &userConversation)
