@@ -10,4 +10,5 @@ func PrepareRoutes(application *system.Application) {
 	goji.Post("/auth/user/signup", application.Route(&controllers.Controller{}, "UserSignup", true))
 	goji.Post("/auth/user/signin", application.Route(&controllers.Controller{}, "UserSignin", true))
 	goji.Get("/auth/user/get", application.Route(&controllers.Controller{}, "GetUsers", true))
+	goji.Get("/auth/user/search", application.Route(&controllers.Controller{}, "SearchUsers", false))
 }

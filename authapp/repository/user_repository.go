@@ -180,8 +180,48 @@ func IsUserLocked(log *logrus.Entry, emailId string) (bool, error) {
 		log.Errorln(err)
 	}
 
-	fmt.Println(isLocked, "kid")
-
 	return isLocked.Bool, err
+
+}
+
+func GetUsersBySearchPattern(userid int64, pattern string, offset, limit int64, log *logrus.Entry) ([]*models.UserSearchDetails, error) {
+
+	db := system.SocialContext.PostgresDB
+
+	pattern = "'" + pattern + "%'"
+
+	query := "SELECT id, name, email FROM social_user WHERE email like %s or name like %s OFFSET %d LIMIT %d ;"
+
+	rows, err := db.Query(fmt.Sprintf(query, pattern, pattern, offset, limit))
+	if err != nil {
+		log.Errorln(err)
+		return nil, err
+	}
+
+	var result []*models.UserSearchDetails
+
+	for rows.Next() {
+		var user models.UserSearchDetails
+		var (
+			id    int64
+			name  string
+			email string
+		)
+
+		err = rows.Scan(&id, &name, &email)
+
+		if err != nil {
+			log.Errorln(err)
+			continue
+		}
+
+		user.Id = id
+		user.FullName = name
+		user.Email = email
+		result = append(result, &user)
+
+	}
+
+	return result, nil
 
 }

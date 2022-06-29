@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/Masher828/MessengerBackend/common-packages/constants"
@@ -28,8 +27,6 @@ func (controller *Controller) CreateConversation(c web.C, w http.ResponseWriter,
 		log.Errorln(err)
 		return []byte{}, err
 	}
-
-	fmt.Println(conversation)
 
 	err = services.CreateConversation(&conversation, log)
 	if err != nil {

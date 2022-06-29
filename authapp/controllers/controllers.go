@@ -6,6 +6,8 @@ import (
 
 	"github.com/Masher828/MessengerBackend/authapp/models"
 	"github.com/Masher828/MessengerBackend/authapp/services"
+	"github.com/Masher828/MessengerBackend/common-packages/constants"
+	commonpackagesmodel "github.com/Masher828/MessengerBackend/common-packages/models"
 	"github.com/Masher828/MessengerBackend/common-packages/system"
 	"github.com/sirupsen/logrus"
 	"github.com/zenazn/goji/web"
@@ -63,4 +65,26 @@ func (controller *Controller) GetUsers(c web.C, w http.ResponseWriter, r *http.R
 	response := map[string]interface{}{"success": true, "data": users}
 	return json.Marshal(response)
 
+}
+
+func (controller *Controller) SearchUsers(c web.C, w http.ResponseWriter, r *http.Request, log *logrus.Entry) ([]byte, error) {
+	userContext := c.Env[constants.UserContext].((commonpackagesmodel.UserModelContext))
+
+	searchQuery := r.URL.Query()["pattern"]
+
+	pattern := ""
+	if len(searchQuery) != 0 {
+		pattern = searchQuery[0]
+	}
+
+	offset, limit := system.GetOffsetAndLimit(r.URL.Query()["offset"], r.URL.Query()["limit"], constants.DefaultOffset, constants.DefaultLimit, log)
+
+	users, err := services.GetUsersBySearchPattern(userContext.Id, pattern, offset, limit, log)
+	if err != nil {
+		log.Errorln(err)
+		return nil, err
+	}
+
+	response := map[string]interface{}{"success": true, "data": users}
+	return json.Marshal(response)
 }

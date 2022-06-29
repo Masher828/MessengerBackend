@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/Masher828/MessengerBackend/authapp/repository"
 	"github.com/Masher828/MessengerBackend/common-packages/conf"
 	"github.com/Masher828/MessengerBackend/common-packages/log"
 	"github.com/Masher828/MessengerBackend/common-packages/system"
@@ -41,5 +42,6 @@ func Test_red(t *testing.T) {
 }
 
 func Test_Conversation(t *testing.T) {
-	fmt.Println(messagesapprepository.GetConversationByName(5, "pump", logger))
+	fmt.Println(repository.GetUsersBySearchPattern(123, "Manish", 0, 10, logger))
+	// fmt.Println(messagesapprepository.GetConversationByName(5, "pump", logger))
 }

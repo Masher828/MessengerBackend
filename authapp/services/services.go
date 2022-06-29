@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -135,4 +136,9 @@ func ClearIncorrectPasswordCountFromRedis(log *logrus.Entry, email string) {
 
 func GetAllUsers(log *logrus.Entry) (map[int64]string, error) {
 	return repository.GetAllUsers(log)
+}
+
+func GetUsersBySearchPattern(userId int64, pattern string, offset, limit int64, log *logrus.Entry) ([]*models.UserSearchDetails, error) {
+
+	return repository.GetUsersBySearchPattern(userId, regexp.QuoteMeta(pattern), offset, limit, log)
 }
